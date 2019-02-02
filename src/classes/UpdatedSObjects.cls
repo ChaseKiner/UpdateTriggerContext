@@ -12,7 +12,6 @@ public with sharing class UpdatedSObjects {
 
     @TestVisible
     private UpdatedSObjects(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
-        verifyMapIntegrity(newSObjects, oldSObjects);
 
         this.newSObjects = newSObjects;
         this.oldSObjects = oldSObjects;
@@ -72,30 +71,7 @@ public with sharing class UpdatedSObjects {
         return filteredMap;
     }
 
-    private void verifyMapIntegrity(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
-        verifyMapsNotNull(newSObjects, oldSObjects);
-        verifyEqualMapSize(newSObjects, oldSObjects);
-        SObjectType type = newSObjects.values()[0].getSObjectType();
-        for (Id id : newSObjects.keySet()) {
-            if (newSObjects.get(id).getSObjectType() != type) {
-                throw new MapIntegrityException('All SObjects inside map must be of same type');
-            }
 
-        }
-
-    }
-
-    private void verifyEqualMapSize(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
-        if (newSObjects.size() != oldSObjects.size()) {
-            throw new MapIntegrityException('Map sizes are not the same');
-        }
-    }
-
-        private void verifyMapsNotNull(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
-            if (newSObjects == null || oldSObjects == null) {
-                throw new NullMapException('One or both Maps are null');
-            }
-        }
 
     public with sharing class NullMapException extends Exception {}
     public with sharing class MapIntegrityException extends Exception {}
