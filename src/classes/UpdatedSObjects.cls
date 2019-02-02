@@ -2,7 +2,16 @@ public with sharing class UpdatedSObjects {
     private Map<Id, SObject> newSObjects;
     private Map<Id, SObject> oldSObjects;
 
-    public UpdatedSObjects(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
+    public UpdatedSObjects() {
+        if(!Trigger.isExecuting || !Trigger.isUpdate) {
+           throw new UpdateTriggerNotExecutingException('Not running in Trigger context');
+        }
+        newSObjects = Trigger.newMap;
+        oldSObjects = Trigger.oldMap;
+    }
+
+    @TestVisible
+    private UpdatedSObjects(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
         verifyMapIntegrity(newSObjects, oldSObjects);
 
         this.newSObjects = newSObjects;
@@ -90,4 +99,6 @@ public with sharing class UpdatedSObjects {
 
     public with sharing class NullMapException extends Exception {}
     public with sharing class MapIntegrityException extends Exception {}
+    public with sharing class UpdateTriggerNotExecutingException extends Exception {}
+
 }
