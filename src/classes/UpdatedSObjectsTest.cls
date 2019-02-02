@@ -20,7 +20,6 @@ private class UpdatedSObjectsTest {
     
     @isTest
     static void match_givenFieldThatDoesNotMatchSObjectType_shouldThrowException() {
-
         Map<Id, Contact> contactMap = new Map<Id, Contact>();
         Contact c = createMockContact();
         contactMap.put(c.Id, c);
