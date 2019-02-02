@@ -4,45 +4,39 @@ private class UpdatedSObjectsTest {
     static Integer s_num = 1;
 
     @isTest
-    static void UpdatedSObjects_givenNullMaps_shouldThrowException() {
-        Boolean exceptionThrow = false;
-        Test.startTest();
-        try {
-            UpdatedSObjects updatedSObjects = new UpdatedSObjects(null, null);
-        }
-        catch (Exception e) {
-            exceptionThrow = true;
-        }
-        System.assertEquals(true, exceptionThrow);
-    }
+    static void UpdatedSObjects_givenNonTriggerContext_shouldThrowException() {
+        Boolean exceptionThrown = false;
 
-    @isTest
-    static void UpdatedSObjects_givenOneNullMap_shouldThrowException() {
-        Boolean exceptionThrow = false;
         Test.startTest();
         try {
-            UpdatedSObjects updatedSObjects = new UpdatedSObjects(null, new Map<Id, SObject>());
+            UpdatedSObjects updatedSObjects = new UpdatedSObjects();
         }
         catch (Exception e) {
-            exceptionThrow = true;
+            exceptionThrown = true;
         }
-        System.assertEquals(true, exceptionThrow);
+        Test.stopTest();
+        System.assertEquals(true, exceptionThrown);
     }
-
+    
     @isTest
-    static void UpdatedSObjects_givenMapsOfDifferentSizes_shouldThrowException() {
-        Boolean exceptionThrow = false;
+    static void match_givenFieldThatDoesNotMatchSObjectType_shouldThrowException() {
+
+        Map<Id, Contact> contactMap = new Map<Id, Contact>();
+        Contact c = createMockContact();
+        contactMap.put(c.Id, c);
+        UpdatedSObjects updatedSObjects = new UpdatedSObjects(contactMap, contactMap);
+        Boolean exceptionThrown = false;
+
         Test.startTest();
-        Map<Id, SObject> sObjectsByIds = new Map<Id, SObject>();
-        Contact contact = createMockContact();
-        sObjectsByIds.put(contact.Id, contact);
         try {
-            UpdatedSObjects updatedSObjects = new UpdatedSObjects(sObjectsByIds, new Map<Id, SObject>());
+            updatedSObjects.match(c.Id, Schema.Account.Name);
         }
         catch (Exception e) {
-            exceptionThrow = true;
+            exceptionThrown = true;
         }
-        System.assertEquals(true, exceptionThrow);
+        Test.stopTest();
+        System.assertEquals(true, exceptionThrown);
+    
     }
 
     private static Contact createMockContact() {
