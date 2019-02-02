@@ -73,8 +73,6 @@ public with sharing class UpdatedSObjects {
 
 
 
-    public with sharing class NullMapException extends Exception {}
-    public with sharing class MapIntegrityException extends Exception {}
     public with sharing class UpdateTriggerNotExecutingException extends Exception {}
 
 }
