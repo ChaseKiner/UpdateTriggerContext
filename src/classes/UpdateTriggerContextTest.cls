@@ -1,5 +1,5 @@
 @IsTest
-private class UpdatedSObjectsTest {
+private class UpdateTriggerContextTest {
 
     static Integer s_num = 1;
 
@@ -9,7 +9,7 @@ private class UpdatedSObjectsTest {
 
         Test.startTest();
         try {
-            UpdatedSObjects updatedSObjects = new UpdatedSObjects();
+            UpdateTriggerContext updatedSObjects = new UpdateTriggerContext();
         }
         catch (Exception e) {
             exceptionThrown = true;
@@ -23,19 +23,18 @@ private class UpdatedSObjectsTest {
         Map<Id, Contact> contactMap = new Map<Id, Contact>();
         Contact c = createMockContact();
         contactMap.put(c.Id, c);
-        UpdatedSObjects updatedSObjects = new UpdatedSObjects(contactMap, contactMap);
+        UpdateTriggerContext updatedSObjects = new UpdateTriggerContext(contactMap, contactMap);
         Boolean exceptionThrown = false;
 
         Test.startTest();
         try {
-            updatedSObjects.match(c.Id, Schema.Account.Name);
+            updatedSObjects.match(c.Id, Account.Name);
         }
         catch (Exception e) {
             exceptionThrown = true;
         }
         Test.stopTest();
         System.assertEquals(true, exceptionThrown);
-    
     }
 
     private static Contact createMockContact() {
@@ -43,7 +42,6 @@ private class UpdatedSObjectsTest {
         contact.Id = getFakeId(Contact.getSObjectType());
         return contact;
     }
-
 
     private static String getFakeId(Schema.SObjectType sot) {
         String result = String.valueOf(s_num++);

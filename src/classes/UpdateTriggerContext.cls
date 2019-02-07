@@ -1,8 +1,8 @@
-public with sharing class UpdatedSObjects {
+public with sharing class UpdateTriggerContext {
     private Map<Id, SObject> newSObjects;
     private Map<Id, SObject> oldSObjects;
 
-    public UpdatedSObjects() {
+    public UpdateTriggerContext() {
         if(!Trigger.isExecuting || !Trigger.isUpdate) {
            throw new UpdateTriggerNotExecutingException('Not running in Trigger context');
         }
@@ -11,36 +11,35 @@ public with sharing class UpdatedSObjects {
     }
 
     @TestVisible
-    private UpdatedSObjects(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
+    private UpdateTriggerContext(Map<Id, SObject> newSObjects, Map<Id, SObject> oldSObjects) {
 
         this.newSObjects = newSObjects;
         this.oldSObjects = oldSObjects;
     }
 
-
     public Boolean match(Id SObjectId, SObjectField field) {
         return newSObjects.get(SObjectId).get(field) == oldSObjects.get(SObjectId).get(field);
     }
 
-    public UpdatedSObjects filterByNew(SObjectField field, Object value) {
+    public UpdateTriggerContext filterByNew(SObjectField field, Object value) {
         Map<Id, SObject> filteredNewSObjects = filterMap(newSObjects, field, value);
         Map<Id, SObject> filteredOldSObjects = filterOld(filteredNewSObjects);
 
-        return new UpdatedSObjects(filteredNewSObjects, filteredOldSObjects);
+        return new UpdateTriggerContext(filteredNewSObjects, filteredOldSObjects);
     }
 
-    public UpdatedSObjects filterByOld(SObjectField field, Object value) {
+    public UpdateTriggerContext filterByOld(SObjectField field, Object value) {
         Map<Id, SObject> filteredOldSObjects = filterMap(oldSObjects, field, value);
         Map<Id, SObject> filteredNewSObjects = filterNew(filteredOldSObjects);
 
-        return new UpdatedSObjects(filteredNewSObjects, filteredOldSObjects);
+        return new UpdateTriggerContext(filteredNewSObjects, filteredOldSObjects);
     }
 
-    public UpdatedSObjects filterByNewAndOld(SObjectField field, Object value) {
+    public UpdateTriggerContext filterByNewAndOld(SObjectField field, Object value) {
         return filterByNew(field, value).filterByOld(field, value);
     }
 
-    public UpdatedSObjects filterChange(SObjectField field) {
+    public UpdateTriggerContext filterChange(SObjectField field) {
         Map<Id, SObject> filteredNewSObjects = new Map<Id, SObject>();
         for (Id id : newSObjects.keySet()) {
             if(match(id, field)) {
@@ -49,7 +48,15 @@ public with sharing class UpdatedSObjects {
         }
         Map<Id, SObject> filteredOldSObjects = filterOld(filteredNewSObjects);
 
-        return new UpdatedSObjects(filteredNewSObjects, filteredOldSObjects);
+        return new UpdateTriggerContext(filteredNewSObjects, filteredOldSObjects);
+    }
+
+    public UpdateTriggerContext union(UpdateTriggerContext updatedSObjects) {
+        Map<Id, SObject> newSObjectMap = new Map<Id, SObject>(getNew());
+        newSObjectMap.putAll(updatedSObjects.getNew());
+        Map<Id, SObject> oldSObjectMap = new Map<Id, SObject>(getOld());
+        oldSObjectMap.putAll(updatedSObjects.getOld());
+        return new UpdateTriggerContext(newSObjectMap, oldSObjectMap);
     }
 
     public Set<Id> getIds() {
@@ -109,8 +116,6 @@ public with sharing class UpdatedSObjects {
         }
         return filteredMap;
     }
-
-
 
     public with sharing class UpdateTriggerNotExecutingException extends Exception {}
 
